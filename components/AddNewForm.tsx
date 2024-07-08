@@ -277,9 +277,9 @@ const AddNewForm = () => {
                             );
                           }}
                         >
-                          {data?.map((item: Products) => (
-                            <option key={item.id} value={item.id}>
-                              {item.name}
+                          {data?.map((sale: Products) => (
+                            <option key={sale.id} value={sale.id}>
+                              {sale.name}
                             </option>
                           ))}
                         </select>

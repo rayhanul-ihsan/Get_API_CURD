@@ -35,7 +35,7 @@ const TableComp = () => {
     setIsOpen(false);
   };
 
-  const filteredData = data
+  const filteredData = data?.data
     .filter((item: ISale) =>
       item.invoice_id.toLowerCase().includes(searchTerm.toLowerCase())
     )
