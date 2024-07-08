@@ -56,7 +56,7 @@ const AddNewForm = () => {
       console.log("Error");
     },
   });
-  const { data } = useGetProduct();
+  const { data, isLoading } = useGetProduct();
   const { fields, append } = useFieldArray({
     control,
     name: "rows",
@@ -67,14 +67,19 @@ const AddNewForm = () => {
   const watchDiscount = watch("discount");
 
   useEffect(() => {
-    const subTotal = watchRows.reduce((sum, row) => sum + (row.total ?? 0), 0);
-    const totalWithTax = subTotal + (subTotal * (watchTax ?? 0)) / 100;
-    const total_price =
-      totalWithTax - (totalWithTax * (watchDiscount ?? 0)) / 100;
+    if (!isLoading) {
+      const subTotal = watchRows.reduce(
+        (sum, row) => sum + (row.total ?? 0),
+        0
+      );
+      const totalWithTax = subTotal + (subTotal * (watchTax ?? 0)) / 100;
+      const total_price =
+        totalWithTax - (totalWithTax * (watchDiscount ?? 0)) / 100;
 
-    setValue("subTotal", subTotal);
-    setValue("total_price", total_price);
-  }, [watchRows, watchTax, watchDiscount, setValue]);
+      setValue("subTotal", subTotal);
+      setValue("total_price", total_price);
+    }
+  }, [watchRows, watchTax, watchDiscount, setValue, isLoading]);
 
   const formatCurrency = (value: number) => {
     return value.toLocaleString("id-ID");
@@ -245,96 +250,107 @@ const AddNewForm = () => {
             </tr>
           </thead>
           <tbody>
-            {fields.map((field, index) => (
-              <tr key={field.id} className="bg-white dark:bg-gray-800">
-                <td
-                  scope="row"
-                  className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                >
-                  <Controller
-                    name={`rows.${index}.name`}
-                    control={control}
-                    render={({ field }) => (
-                      <select
-                        {...field}
-                        id={`name-${index}`}
-                        className={`bg-gray-50 border ${
-                          errors.rows?.[index]?.name
-                            ? "border-red-500"
-                            : "border-gray-300"
-                        } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
-                        onChange={(e) => {
-                          field.onChange(e);
-                          handleChooseProduct(index, Number(e.target.value));
-                        }}
-                      >
-                        {data?.map((item: Products) => (
-                          <option key={item.id} value={item.id}>
-                            {item.name}
-                          </option>
-                        ))}
-                      </select>
+            {!isLoading ? (
+              fields.map((field, index) => (
+                <tr key={field.id} className="bg-white dark:bg-gray-800">
+                  <td
+                    scope="row"
+                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                  >
+                    <Controller
+                      name={`rows.${index}.name`}
+                      control={control}
+                      render={({ field }) => (
+                        <select
+                          {...field}
+                          id={`name-${index}`}
+                          className={`bg-gray-50 border ${
+                            errors.rows?.[index]?.name
+                              ? "border-red-500"
+                              : "border-gray-300"
+                          } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            handleChooseProduct(
+                              index,
+                              Number(e.target.value)
+                            );
+                          }}
+                        >
+                          {data?.map((item: Products) => (
+                            <option key={item.id} value={item.id}>
+                              {item.name}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    />
+                    {errors.rows?.[index]?.name && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.rows[index]?.name?.message}
+                      </p>
                     )}
-                  />
-                  {errors.rows?.[index]?.name && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.rows[index]?.name?.message}
-                    </p>
-                  )}
-                </td>
-                <td className="px-6 py-4">
-                  <Controller
-                    name={`rows.${index}.price`}
-                    control={control}
-                    render={({ field }) => (
-                      <input
-                        {...field}
-                        type="text"
-                        className={`bg-gray-50 border ${
-                          errors.rows?.[index]?.price
-                            ? "border-red-500"
-                            : "border-gray-300"
-                        } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
-                        placeholder="Rp."
-                        required
-                        readOnly
-                      />
+                  </td>
+                  <td className="px-6 py-4">
+                    <Controller
+                      name={`rows.${index}.price`}
+                      control={control}
+                      render={({ field }) => (
+                        <input
+                          {...field}
+                          type="text"
+                          className={`bg-gray-50 border ${
+                            errors.rows?.[index]?.price
+                              ? "border-red-500"
+                              : "border-gray-300"
+                          } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
+                          placeholder="Rp."
+                          required
+                          readOnly
+                        />
+                      )}
+                    />
+                  </td>
+                  <td className="px-6 py-4">
+                    <Controller
+                      name={`rows.${index}.qty`}
+                      control={control}
+                      render={({ field }) => (
+                        <input
+                          {...field}
+                          type="number"
+                          className={`bg-gray-50 border ${
+                            errors.rows?.[index]?.qty
+                              ? "border-red-500"
+                              : "border-gray-300"
+                          } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
+                          placeholder="Qty"
+                          onChange={(e) => {
+                            field.onChange(e);
+                            handleInputChange(index, "qty", e.target.value);
+                          }}
+                          required
+                        />
+                      )}
+                    />
+                    {errors.rows?.[index]?.qty && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.rows[index]?.qty?.message}
+                      </p>
                     )}
-                  />
-                </td>
-                <td className="px-6 py-4">
-                  <Controller
-                    name={`rows.${index}.qty`}
-                    control={control}
-                    render={({ field }) => (
-                      <input
-                        {...field}
-                        type="number"
-                        className={`bg-gray-50 border ${
-                          errors.rows?.[index]?.qty
-                            ? "border-red-500"
-                            : "border-gray-300"
-                        } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
-                        placeholder="Qty"
-                        onChange={(e) => {
-                          field.onChange(e);
-                          handleInputChange(index, "qty", e.target.value);
-                        }}
-                        required
-                      />
-                    )}
-                  />
-                  {errors.rows?.[index]?.qty && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.rows[index]?.qty?.message}
-                    </p>
-                  )}
-                </td>
-                <td className="px-6 py-4">
-                  Rp.{formatCurrency(watchRows[index]?.total ?? 0)}
+                  </td>
+                  <td className="px-6 py-4">
+                    Rp.{formatCurrency(watchRows[index]?.total ?? 0)}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={4} className="px-6 py-4 text-center">
+                  Loading...
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
         <button
