@@ -1,7 +1,7 @@
 "use client";
 
 import { useGetProduct } from "@/hooks/useGetProduct";
-import { IRow, Products } from "@/interface/interface";
+import { IPayload, IRow, Products } from "@/interface/interface";
 import { api } from "@/libs/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -21,6 +21,8 @@ interface FormData {
   subTotal?: number;
   total_price?: number;
 }
+
+
 
 const EditForm = () => {
   const router = useRouter();
@@ -70,7 +72,7 @@ const EditForm = () => {
   }, [getId, isError, reset]);
 
   const { mutate } = useMutation({
-    mutationFn: async (data) => {
+    mutationFn: async (data: IPayload) => {
       const res = await api.put(`/sale/${id}`, data);
       console.log(res.data);
     },
@@ -150,7 +152,7 @@ const EditForm = () => {
   const onSubmit = async (data: FormData) => {
     // console.log(data);
 
-    const payload = {
+    const payload: IPayload = {
       invoice_id: data.invoice,
       customer_name: data.customer,
       tax: data.tax + "%",

@@ -51,3 +51,17 @@ export interface DetailData {
   total_price: number;
   detail: IDetail[];
 }
+
+export interface IPayload {
+  invoice_id: string;
+  customer_name: string;
+  tax: string;
+  subtotal: number | undefined;
+  discount: string;
+  total_price: number | undefined;
+  detail: {
+    product_id: number;
+    price: number;
+    quantity: number;
+  }[];
+}

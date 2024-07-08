@@ -1,7 +1,7 @@
 "use client";
 
 import { useGetProduct } from "@/hooks/useGetProduct";
-import { IRow, Products } from "@/interface/interface";
+import { IPayload, IRow, Products } from "@/interface/interface";
 import { api } from "@/libs/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -44,7 +44,7 @@ const AddNewForm = () => {
   });
   const { mutate } = useMutation({
     mutationKey: ["postProduct"],
-    mutationFn: async (payload: IRow) => {
+    mutationFn: async (payload: IPayload) => {
       const res = await api.post("/sale", payload);
       console.log(res.data);
     },
@@ -125,7 +125,7 @@ const AddNewForm = () => {
   const onSubmit = async (data: FormData) => {
     // console.log(data);
 
-    const payload = {
+    const payload: IPayload = {
       invoice_id: data.invoice,
       customer_name: data.customer,
       tax: data.tax + "%",
